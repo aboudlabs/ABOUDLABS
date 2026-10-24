@@ -100,7 +100,7 @@ export function Hero({ lang, settings }) {
 
       {/* Hero Content */}
       <div className="max-w-5xl text-center space-y-8">
-        <h1 className="hero-title hero-reveal text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.12] md:leading-[1.08]">
+        <h1 className="hero-title hero-reveal text-[1.7rem] sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-normal text-zinc-900 dark:text-zinc-50 leading-[1.55] sm:leading-[1.35] md:leading-[1.08] text-balance break-words px-2 sm:px-0">
           {title}
         </h1>
         <p className="hero-subtitle hero-reveal text-lg md:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
