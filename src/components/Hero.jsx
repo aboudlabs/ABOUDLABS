@@ -1,8 +1,6 @@
 import React from 'react';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
 
-const HeroGL = React.lazy(() => import('./HeroGL'));
-
 export function Hero({ lang, settings }) {
   const activeSettings = settings || DEFAULT_SETTINGS;
 
@@ -68,7 +66,6 @@ export function Hero({ lang, settings }) {
       <div className="hero-orb hero-orb-one" aria-hidden="true"></div>
       <div className="hero-orb hero-orb-two" aria-hidden="true"></div>
       <div className="hero-grid" aria-hidden="true"></div>
-      <React.Suspense fallback={null}><HeroGL /></React.Suspense>
 
       <div className="hero-orbit-system" aria-hidden="true">
         <div className="hero-orbit hero-orbit-a"><span></span></div>
