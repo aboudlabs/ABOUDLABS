@@ -1,0 +1,77 @@
+name: Extract Claude ZIP to repository root
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract-zip:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Claude archive into root
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP="ABOUDLABS-upgraded.zip"
+          if [ ! -f "$ZIP" ]; then
+            echo "Archive not found; nothing to extract."
+            exit 0
+          fi
+
+          mkdir -p /tmp/aboudlabs-unpack
+          python - <<'PY'
+          import os, shutil, zipfile
+          from pathlib import Path
+
+          archive = Path("ABOUDLABS-upgraded.zip")
+          target = Path("/tmp/aboudlabs-unpack")
+          with zipfile.ZipFile(archive) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f"Corrupt ZIP entry: {bad}")
+              z.extractall(target)
+
+          entries = [p for p in target.iterdir() if p.name not in ("__MACOSX",)]
+          source = target
+          if len(entries) == 1 and entries[0].is_dir():
+              source = entries[0]
+
+          # Remove the existing tracked/untracked project contents, but keep Git metadata.
+          for p in Path(".").iterdir():
+              if p.name == ".git":
+                  continue
+              if p.is_dir():
+                  shutil.rmtree(p)
+              else:
+                  p.unlink()
+
+          for p in source.iterdir():
+              dest = Path(p.name)
+              if p.is_dir():
+                  shutil.copytree(p, dest)
+              else:
+                  shutil.copy2(p, dest)
+
+          archive.unlink(missing_ok=True)
+          print("Extracted archive entries:", ", ".join(sorted(p.name for p in Path(".").iterdir() if p.name != ".git")))
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No extracted changes to commit."
+            exit 0
+          fi
+          git commit -m "Extract Claude upgraded site into repository root"
+          git push
